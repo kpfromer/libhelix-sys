@@ -26,6 +26,10 @@ pub enum Mp3Error {
     InvalidImdct,
     /// Invalid subband transform.
     InvalidSubband,
+    /// Buffer not aligned to required boundary.
+    BadAlignment,
+    /// Output buffer too small for decoded samples.
+    OutputBufferTooSmall,
     /// Unknown error code from the C library.
     Unknown(i32),
 }
@@ -65,6 +69,8 @@ impl core::fmt::Display for Mp3Error {
             Self::InvalidDequantize => write!(f, "invalid dequantization"),
             Self::InvalidImdct => write!(f, "invalid IMDCT"),
             Self::InvalidSubband => write!(f, "invalid subband transform"),
+            Self::BadAlignment => write!(f, "buffer not aligned to required boundary"),
+            Self::OutputBufferTooSmall => write!(f, "output buffer too small for decoded samples"),
             Self::Unknown(code) => write!(f, "unknown error (code {code})"),
         }
     }

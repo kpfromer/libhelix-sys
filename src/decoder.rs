@@ -44,15 +44,11 @@ impl<'a> Mp3Decoder<'a> {
     /// The buffer must be aligned to [`DECODER_BUF_ALIGN`] bytes.
     ///
     /// Returns `Err(OutOfMemory)` if the buffer is too small.
-    ///
-    /// # Panics
-    ///
-    /// Panics if `buf` is not properly aligned.
+    /// Returns `Err(BadAlignment)` if `buf` is not aligned to [`DECODER_BUF_ALIGN`] bytes.
     pub fn new(buf: &'a mut [u8]) -> Result<Self, Mp3Error> {
-        assert!(
-            buf.as_ptr() as usize % DECODER_BUF_ALIGN == 0,
-            "decoder buffer must be {DECODER_BUF_ALIGN}-byte aligned"
-        );
+        if buf.as_ptr() as usize % DECODER_BUF_ALIGN != 0 {
+            return Err(Mp3Error::BadAlignment);
+        }
 
         let handle = unsafe { ffi::helix_mp3_init_into(buf.as_mut_ptr(), buf.len()) };
         if handle.is_null() {
@@ -105,10 +101,9 @@ impl<'a> Mp3Decoder<'a> {
         input: &[u8],
         output: &mut [i16],
     ) -> Result<(usize, FrameInfo), Mp3Error> {
-        assert!(
-            output.len() >= MAX_SAMPLES_PER_FRAME,
-            "output buffer must be at least {MAX_SAMPLES_PER_FRAME} samples"
-        );
+        if output.len() < MAX_SAMPLES_PER_FRAME {
+            return Err(Mp3Error::OutputBufferTooSmall);
+        }
 
         let mut inbuf_ptr = input.as_ptr();
         let mut bytes_left = input.len();

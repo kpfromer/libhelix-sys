@@ -258,6 +258,24 @@ fn decoder_new_buffer_too_small() {
 }
 
 #[test]
+fn decoder_new_misaligned_buffer() {
+    // Allocate an aligned buffer, then offset by 1 to guarantee misalignment.
+    let size = decoder_buf_size() + DECODER_BUF_ALIGN;
+    let layout = Layout::from_size_align(size, DECODER_BUF_ALIGN).unwrap();
+    let ptr = unsafe { alloc_zeroed(layout) };
+    assert!(!ptr.is_null());
+
+    // Offset by 1 byte to break alignment
+    let misaligned_ptr = unsafe { ptr.add(1) };
+    let buf = unsafe { std::slice::from_raw_parts_mut(misaligned_ptr, decoder_buf_size()) };
+
+    let result = Mp3Decoder::new(buf);
+    assert_eq!(result.unwrap_err(), Mp3Error::BadAlignment);
+
+    unsafe { dealloc(ptr, layout) };
+}
+
+#[test]
 fn decoder_buf_size_is_reasonable() {
     let size = decoder_buf_size();
     // Should be around 23-25KB based on the C structs
