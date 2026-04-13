@@ -32,6 +32,7 @@ impl core::fmt::Debug for Mp3Decoder<'_> {
 pub struct Mp3Decoder<'a> {
     handle: ffi::HMP3Decoder,
     _buf: core::marker::PhantomData<&'a mut [u8]>,
+    total_samples: usize,
 }
 
 // Safety: decoder state is self-contained, not shared across threads.
@@ -57,6 +58,7 @@ impl<'a> Mp3Decoder<'a> {
         Ok(Self {
             handle,
             _buf: core::marker::PhantomData,
+            total_samples: 0,
         })
     }
 
@@ -132,6 +134,19 @@ impl<'a> Mp3Decoder<'a> {
         }
         let info = FrameInfo::from_raw(unsafe { raw_info.assume_init() });
 
+        self.total_samples += info.output_samples;
+
         Ok((bytes_consumed, info))
+    }
+
+    /// Returns the cumulative number of raw PCM samples decoded so far
+    /// (channels × samples_per_channel) across all successfully decoded frames.
+    ///
+    /// To compute a playback timestamp in seconds:
+    /// ```text
+    /// let secs = decoder.total_samples() as f64 / channels as f64 / sample_rate as f64;
+    /// ```
+    pub fn total_samples(&self) -> usize {
+        self.total_samples
     }
 }

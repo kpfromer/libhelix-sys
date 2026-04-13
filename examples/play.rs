@@ -57,6 +57,12 @@ fn main() {
                     );
                 }
                 all_samples.extend_from_slice(&pcm[..info.output_samples]);
+                let timestamp = decoder.total_samples() as f64
+                    / channels as f64
+                    / sample_rate as f64;
+                if frame_count % 100 == 0 {
+                    println!("  frame {frame_count}: {timestamp:.2}s");
+                }
                 offset += consumed;
             }
             Err(Mp3Error::MainDataUnderflow) => {

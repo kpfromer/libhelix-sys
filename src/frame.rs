@@ -17,6 +17,14 @@ pub struct FrameInfo {
 }
 
 impl FrameInfo {
+    /// Returns the number of samples per channel for this frame.
+    ///
+    /// This is `output_samples / channels`, useful for timestamp calculation:
+    /// `total_samples_per_channel as f64 / sample_rate as f64`.
+    pub fn samples_per_channel(&self) -> usize {
+        self.output_samples / self.channels as usize
+    }
+
     pub(crate) fn from_raw(raw: ffi::MP3FrameInfo) -> Self {
         Self {
             sample_rate: raw.samprate as u32,
