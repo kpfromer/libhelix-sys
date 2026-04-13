@@ -1,0 +1,15 @@
+[package]
+name = "helix-mp3"
+version = "0.1.0"
+edition = "2024"
+description = "Safe, no_std, zero-allocation Rust bindings for the libhelix-mp3 fixed-point MP3 decoder"
+license = "MIT OR Apache-2.0"
+
+[features]
+default = []
+std = []
+
+[build-dependencies]
+cc = "1"
+
+[dev-dependencies]
