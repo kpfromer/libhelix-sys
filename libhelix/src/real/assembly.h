@@ -446,7 +446,10 @@ static __inline int MULSHIFT32(int x, int y)
 
 #else
 
-#error Missing definition of MULSHIFT32
+static __inline int MULSHIFT32(int x, int y)
+{
+    return (int)(((long long)x * (long long)y) >> 32);
+}
 
 #endif
 
@@ -461,7 +464,10 @@ static __inline int FASTABS(int x)
 
 #else
 
-#error Missing definition of FASTABS
+static __inline int FASTABS(int x)
+{
+    return (x < 0) ? -x : x;
+}
 
 #endif
 
