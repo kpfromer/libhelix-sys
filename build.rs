@@ -26,5 +26,14 @@ fn main() {
         .include("libhelix/src/pub")
         .include("libhelix/src/real")
         .warnings(false)
-        .compile("helixmp3");
+        .warnings(false);
+
+    // -mlongcalls is required for Xtensa targets (ESP32) to avoid
+    // "call target out of range" errors when calling memcpy/memset/memmove
+    let target = std::env::var("TARGET").unwrap_or_default();
+    if target.contains("xtensa") {
+        build.flag("-mlongcalls");
+    }
+
+    build.compile("helixmp3");
 }
